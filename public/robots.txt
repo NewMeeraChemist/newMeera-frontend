@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /ops-console-7f2q
+Disallow: /account
