@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Package,
   Plus,
@@ -47,7 +47,7 @@ export default function AdminProductsPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchProducts = async (page: number = pagination.page) => {
+  const fetchProducts = useCallback(async (page: number = pagination.page) => {
     setLoading(true);
     try {
       const params: Record<string, string> = {
@@ -66,11 +66,11 @@ export default function AdminProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, search, stockStatus, isActiveFilter]);
 
   useEffect(() => {
     fetchProducts(1);
-  }, [search, stockStatus, isActiveFilter]);
+  }, [fetchProducts]);
 
   const handleOpenCreateModal = () => {
     setEditingProduct(null);

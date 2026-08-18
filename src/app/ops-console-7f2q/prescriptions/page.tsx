@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   FileText,
   CheckCircle,
@@ -31,7 +31,7 @@ export default function AdminPrescriptionsPage() {
   const [pharmacistNote, setPharmacistNote] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
 
-  const fetchPrescriptions = async (page: number = pagination.page) => {
+  const fetchPrescriptions = useCallback(async (page: number = pagination.page) => {
     setLoading(true);
     try {
       const params: Record<string, string> = {
@@ -48,11 +48,11 @@ export default function AdminPrescriptionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, statusFilter]);
 
   useEffect(() => {
     fetchPrescriptions(1);
-  }, [statusFilter]);
+  }, [fetchPrescriptions]);
 
   const handleOpenDocPreview = async (rxId: string) => {
     try {

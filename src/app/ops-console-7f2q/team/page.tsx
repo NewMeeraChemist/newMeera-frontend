@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   ShieldCheck,
   UserPlus,
@@ -32,7 +32,7 @@ export default function AdminTeamPage() {
   const [inviting, setInviting] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const fetchTeam = async (page: number = pagination.page) => {
+  const fetchTeam = useCallback(async (page: number = pagination.page) => {
     setLoading(true);
     try {
       const res = await adminApi.getAdminUsers({ page: page.toString(), pageSize: '10' });
@@ -43,11 +43,11 @@ export default function AdminTeamPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page]);
 
   useEffect(() => {
     fetchTeam(1);
-  }, []);
+  }, [fetchTeam]);
 
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

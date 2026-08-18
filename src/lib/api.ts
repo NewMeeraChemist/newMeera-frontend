@@ -1,4 +1,4 @@
-import { ApiResponse, Product, Category, Brand, HealthConcern, Order, Address } from '../types';
+import { ApiResponse, Product, Category, Brand, HealthConcern, Order, OrderItem, Address } from '../types';
 import { mockProducts, mockCategories, mockBrands, mockConcerns } from './mockData';
 
 const getApiBaseUrl = () => {
@@ -170,7 +170,6 @@ export const api = {
   },
 
   async getOrderDetail(id: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return await fetchApi<{ order: Order; items: any[]; shippingAddress: Address | null; trackingStatus: any }>(`/me/orders/${id}`);
+    return await fetchApi<{ order: Order; items: OrderItem[]; shippingAddress: Address | null; trackingStatus: unknown }>(`/me/orders/${id}`);
   },
 };

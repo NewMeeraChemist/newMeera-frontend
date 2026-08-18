@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, Search, Eye, Clock, CheckCircle2, Truck, PackageCheck, XCircle } from 'lucide-react';
 import { api } from '../../../lib/api';
+import { Order } from '../../../types';
 
 export default function CustomerOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Array<Order & { itemCount?: number }>>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -19,13 +19,8 @@ export default function CustomerOrdersPage() {
         if (token) {
           const liveOrders = await api.getOrders();
           if (Array.isArray(liveOrders)) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const formatted = liveOrders.map((ord: any) => ({
-              id: ord.id,
-              orderNumber: ord.orderNumber,
-              createdAt: ord.createdAt,
-              status: ord.status,
-              total: ord.total,
+            const formatted = liveOrders.map((ord: Order) => ({
+              ...ord,
               itemCount: ord.items?.length || 1,
             }));
             setOrders(formatted);

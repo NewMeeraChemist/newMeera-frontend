@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   ShoppingBag,
   Search,
@@ -41,7 +41,7 @@ export default function AdminOrdersPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  const fetchOrders = async (page: number = pagination.page) => {
+  const fetchOrders = useCallback(async (page: number = pagination.page) => {
     setLoading(true);
     try {
       const params: Record<string, string> = {
@@ -59,11 +59,11 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, selectedStatus, search]);
 
   useEffect(() => {
     fetchOrders(1);
-  }, [selectedStatus, search]);
+  }, [fetchOrders]);
 
   const handleViewDetail = async (orderId: string) => {
     setSelectedOrderId(orderId);

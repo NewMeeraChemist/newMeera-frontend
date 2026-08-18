@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Users,
   Search,
@@ -32,7 +32,7 @@ export default function AdminCustomersPage() {
   } | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  const fetchCustomers = async (page: number = pagination.page) => {
+  const fetchCustomers = useCallback(async (page: number = pagination.page) => {
     setLoading(true);
     try {
       const params: Record<string, string> = {
@@ -49,11 +49,11 @@ export default function AdminCustomersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, search]);
 
   useEffect(() => {
     fetchCustomers(1);
-  }, [search]);
+  }, [fetchCustomers]);
 
   const handleViewCustomer = async (customerId: string) => {
     setSelectedCustomerId(customerId);
