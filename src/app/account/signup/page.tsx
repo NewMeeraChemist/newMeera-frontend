@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Pill, Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '../../../lib/supabaseBrowser';
 import { api } from '../../../lib/api';
 import { setAuthSession } from '../../../lib/authSession';
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/account';
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,20 +48,22 @@ export default function SignupPage() {
         password,
       });
 
+      const loginRedirectTarget = redirectPath !== '/account' ? `/account/login?redirect=${encodeURIComponent(redirectPath)}` : '/account/login';
+
       if (signInError || !signInData.session) {
         setSuccessMsg('Account created successfully! Please sign in with your credentials.');
-        setTimeout(() => router.push('/account/login'), 1500);
+        setTimeout(() => router.push(loginRedirectTarget), 1500);
         return;
       }
 
       setAuthSession(signInData.session.access_token);
 
-      setSuccessMsg('Account created successfully! Logging you in...');
+      setSuccessMsg('Account created successfully! Redirecting...');
       setTimeout(() => {
         if (typeof window !== 'undefined') {
-          window.location.href = '/account';
+          window.location.href = redirectPath;
         } else {
-          router.push('/account');
+          router.push(redirectPath);
         }
       }, 1000);
     } catch (err: unknown) {
@@ -77,6 +82,13 @@ export default function SignupPage() {
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create Customer Account</h1>
         <p className="text-xs text-slate-500">Sign up for 24/7 medicine ordering & express pharmacy delivery</p>
       </div>
+
+      {redirectPath.includes('/checkout') && (
+        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>Please create an account to complete your order checkout.</span>
+        </div>
+      )}
 
       {errorMsg && (
         <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 flex items-center gap-2">
@@ -152,10 +164,21 @@ export default function SignupPage() {
 
       <div className="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
         Already have an account?{' '}
-        <Link href="/account/login" className="font-bold text-brand-600 hover:text-brand-700">
+        <Link
+          href={redirectPath !== '/account' ? `/account/login?redirect=${encodeURIComponent(redirectPath)}` : '/account/login'}
+          className="font-bold text-brand-600 hover:text-brand-700"
+        >
           Sign In
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-xs text-slate-400">Loading sign up...</div>}>
+      <SignupForm />
+    </Suspense>
   );
 }

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, FileText, ShieldCheck } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
+import { getAuthToken } from '../../lib/authSession';
 
 export default function CartPage() {
   const router = useRouter();
@@ -28,10 +29,9 @@ export default function CartPage() {
   const rxRequired = requiresPrescription();
 
   const handleProceedToCheckout = () => {
-    // Check if user is authenticated (checking token in localStorage)
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const token = getAuthToken();
     if (!token) {
-      router.push('/checkout');
+      router.push('/account/login?redirect=/checkout');
     } else {
       router.push('/checkout');
     }

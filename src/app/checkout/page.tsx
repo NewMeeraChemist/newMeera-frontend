@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { MapPin, ShieldCheck, CheckCircle2, ArrowLeft, Banknote, CreditCard, Lock } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { api } from '../../lib/api';
+import { getAuthToken } from '../../lib/authSession';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -28,7 +29,11 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    const token = getAuthToken();
+    if (!token) {
+      router.push('/account/login?redirect=/checkout');
+    }
+  }, [router]);
 
   if (!isMounted) {
     return <div className="p-12 text-center text-sm text-slate-500">Loading checkout...</div>;
@@ -41,6 +46,12 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
+
+    const token = getAuthToken();
+    if (!token) {
+      router.push('/account/login?redirect=/checkout');
+      return;
+    }
 
     setLoading(true);
 

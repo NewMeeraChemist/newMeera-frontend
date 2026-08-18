@@ -13,6 +13,15 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
+  React.useEffect(() => {
+    if (pathname !== `${ADMIN_PATH}/login`) {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+      if (!token) {
+        router.push(`${ADMIN_PATH}/login`);
+      }
+    }
+  }, [pathname, router]);
+
   if (pathname === `${ADMIN_PATH}/login`) {
     return <>{children}</>;
   }

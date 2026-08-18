@@ -87,6 +87,13 @@ function LoginForm() {
         <p className="text-xs text-slate-500">Access your orders, saved addresses & prescriptions</p>
       </div>
 
+      {redirectPath.includes('/checkout') && (
+        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>Please sign in to your account to complete your order checkout.</span>
+        </div>
+      )}
+
       {errorMsg && (
         <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
@@ -139,7 +146,10 @@ function LoginForm() {
 
       <div className="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
         Don&apos;t have an account yet?{' '}
-        <Link href="/account/signup" className="font-bold text-brand-600 hover:text-brand-700">
+        <Link
+          href={redirectPath !== '/account' ? `/account/signup?redirect=${encodeURIComponent(redirectPath)}` : '/account/signup'}
+          className="font-bold text-brand-600 hover:text-brand-700"
+        >
           Create Account
         </Link>
       </div>
