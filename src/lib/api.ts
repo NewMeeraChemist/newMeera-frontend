@@ -163,4 +163,14 @@ export const api = {
       body: JSON.stringify(payload),
     });
   },
+
+  async getOrders() {
+    const res = await fetchApi<{ orders: Order[]; pagination: { page: number; pageSize: number; total: number; totalPages: number } }>('/me/orders');
+    return res.orders || [];
+  },
+
+  async getOrderDetail(id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return await fetchApi<{ order: Order; items: any[]; shippingAddress: Address | null; trackingStatus: any }>(`/me/orders/${id}`);
+  },
 };

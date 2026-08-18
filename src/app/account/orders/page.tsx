@@ -5,63 +5,37 @@ import Link from 'next/link';
 import { ShoppingBag, Search, Eye, Clock, CheckCircle2, Truck, PackageCheck, XCircle } from 'lucide-react';
 import { api } from '../../../lib/api';
 
-const defaultMockOrders = [
-  {
-    id: 'ord-101',
-    orderNumber: 'NMC-2026-8891',
-    createdAt: new Date().toISOString(),
-    status: 'confirmed',
-    total: 499,
-    itemCount: 2,
-  },
-  {
-    id: 'ord-102',
-    orderNumber: 'NMC-2026-7723',
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    status: 'shipped',
-    total: 1799,
-    itemCount: 1,
-  },
-  {
-    id: 'ord-103',
-    orderNumber: 'NMC-2026-5510',
-    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    status: 'delivered',
-    total: 329,
-    itemCount: 1,
-  },
-  {
-    id: 'ord-104',
-    orderNumber: 'NMC-2026-3390',
-    createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    status: 'cancelled',
-    total: 110,
-    itemCount: 1,
-  },
-];
-
 export default function CustomerOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
-  const [orders, setOrders] = useState<any[]>(defaultMockOrders);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadOrders() {
       try {
-        const token = localStorage.getItem('auth_token');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
         if (token) {
-          const res: any = await api.getProfile(); // Check if authenticated
-          if (res) {
-            // Fetch live customer orders
-            const rawOrders: any = await (api as any).getOrders?.() || defaultMockOrders;
-            if (Array.isArray(rawOrders) && rawOrders.length > 0) {
-              setOrders(rawOrders);
-            }
+          const liveOrders = await api.getOrders();
+          if (Array.isArray(liveOrders)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const formatted = liveOrders.map((ord: any) => ({
+              id: ord.id,
+              orderNumber: ord.orderNumber,
+              createdAt: ord.createdAt,
+              status: ord.status,
+              total: ord.total,
+              itemCount: ord.items?.length || 1,
+            }));
+            setOrders(formatted);
           }
+        } else {
+          setOrders([]);
         }
       } catch (err) {
-        console.warn('Fallback to mock order list:', err);
+        console.warn('Could not load live customer orders:', err);
+        setOrders([]);
       } finally {
         setIsLoading(false);
       }
